@@ -1,0 +1,49 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WASH Connect",
+        "description": "Enter your WASH Connect credentials and the site code for your laundry location.",
+        "data": {
+          "username": "Email",
+          "password": "Password",
+          "srcode": "Site code (e.g. W001274)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "invalid_srcode": "Site code not found. Check the QR code or sign in the app.",
+      "cannot_connect": "Unable to connect to WASH Connect. Check your network."
+    },
+    "abort": {
+      "already_configured": "This location is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "available": "Available",
+          "in_use": "In use",
+          "out_of_service": "Out of service"
+        }
+      },
+      "time_remaining": { "name": "Time remaining" },
+      "start_time": { "name": "Start time" },
+      "estimated_completion": { "name": "Estimated completion" },
+      "bt_name": { "name": "Bluetooth name" },
+      "balance_cents": { "name": "Account balance (cents)" }
+    },
+    "binary_sensor": {
+      "is_available": {
+        "name": "Available",
+        "state": {
+          "on": "Available",
+          "off": "In use"
+        }
+      }
+    }
+  }
+}
