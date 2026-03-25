@@ -9,8 +9,15 @@ import aiohttp
 
 _FIREBASE_BASE = "https://us-central1-washmobilepay.cloudfunctions.net"
 
-# Hardcoded in the app binary — not a user secret.
+# Hardcoded in the app binary — not user secrets.
 _WEB_API_KEY = "gc8g4so8c0swo4cock0gckgkck844gg0skk8ooc0"
+_FIREBASE_WEB_API_KEY = "AIzaSyA0DfdE2BvRiYKJUgAFtdDSbdZAGyUEJyg"
+
+# Firebase Auth REST endpoints used to exchange + refresh tokens.
+_IDENTITY_TOOLKIT_URL = (
+    "https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken"
+)
+_SECURE_TOKEN_URL = "https://securetoken.googleapis.com/v1/token"
 
 _REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=10)
 
@@ -87,10 +94,20 @@ class WashConnectClient:
     def __init__(
         self,
         token: str | None = None,
+        refresh_token: str | None = None,
         session: aiohttp.ClientSession | None = None,
     ) -> None:
         self._token = token
+        self._refresh_token = refresh_token
         self._session = session
+
+    @property
+    def token(self) -> str | None:
+        return self._token
+
+    @property
+    def refresh_token(self) -> str | None:
+        return self._refresh_token
 
     # ------------------------------------------------------------------
     # Auth
@@ -118,7 +135,59 @@ class WashConnectClient:
             raise AuthError(str(exc)) from exc
 
         self._token = body["token"]
+        firebase_custom_token = body.get("firebase_token")
+        if firebase_custom_token:
+            await self._exchange_firebase_custom_token(firebase_custom_token)
         return body
+
+    async def _exchange_firebase_custom_token(self, custom_token: str) -> None:
+        """
+        Exchange a Firebase custom token (from /login) for a Firebase ID token
+        and a long-lived refresh token.  Updates self._token and self._refresh_token
+        in place.  Silently no-ops on failure so callers can continue with the
+        short-lived CryptoJS token returned by /login.
+        """
+        try:
+            async with self._get_session().post(
+                _IDENTITY_TOOLKIT_URL,
+                params={"key": _FIREBASE_WEB_API_KEY},
+                json={"token": custom_token, "returnSecureToken": True},
+                timeout=_REQUEST_TIMEOUT,
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json(content_type=None)
+                    # The CryptoJS token from /login is the correct Bearer for the
+                    # Cloud Functions API — don't overwrite it.  Only capture the
+                    # refresh_token so we can mint new Firebase ID tokens later
+                    # when the CryptoJS token expires.
+                    self._refresh_token = data["refreshToken"]
+        except Exception:  # noqa: BLE001
+            pass  # Fall back to the CryptoJS token already set by login()
+
+    async def refresh_firebase_token(self) -> bool:
+        """
+        Use the stored refresh token to obtain a new Firebase ID token without
+        re-logging in.  Updates self._token (and self._refresh_token) in place.
+        Returns True on success, False if no refresh token is stored or the
+        request fails.
+        """
+        if not self._refresh_token:
+            return False
+        try:
+            async with self._get_session().post(
+                _SECURE_TOKEN_URL,
+                params={"key": _FIREBASE_WEB_API_KEY},
+                json={"grant_type": "refresh_token", "refresh_token": self._refresh_token},
+                timeout=_REQUEST_TIMEOUT,
+            ) as resp:
+                if resp.status != 200:
+                    return False
+                data = await resp.json(content_type=None)
+                self._token = data["id_token"]
+                self._refresh_token = data["refresh_token"]
+                return True
+        except Exception:  # noqa: BLE001
+            return False
 
     # ------------------------------------------------------------------
     # Locations

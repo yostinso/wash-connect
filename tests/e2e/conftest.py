@@ -10,6 +10,8 @@ import pytest_asyncio
 import aiohttp
 from pathlib import Path
 
+from wash_connect.api import WashConnectClient
+
 SESSION_CACHE = Path(__file__).parent.parent.parent / ".test_session.json"
 
 BASE_URL = "https://us-central1-washmobilepay.cloudfunctions.net"
@@ -50,6 +52,21 @@ def _enable_socket():
     import pytest_socket
     pytest_socket._remove_restrictions()
     yield
+
+
+@pytest_asyncio.fixture
+async def wash_client(cached_session):
+    """
+    A WashConnectClient pre-loaded with the cached session token and refresh token.
+    Prefer this fixture over constructing WashConnectClient(token=...) manually
+    so tests automatically benefit from token refresh.
+    """
+    async with aiohttp.ClientSession() as http:
+        yield WashConnectClient(
+            token=cached_session["token"],
+            refresh_token=cached_session.get("refresh_token"),
+            session=http,
+        )
 
 
 @pytest_asyncio.fixture

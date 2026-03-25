@@ -36,11 +36,14 @@ async def test_login_success():
     location = await client.get_locations(srcode)
     assert location["uln"], "Expected a uln from the location lookup"
 
-    # Persist everything the other tests need
+    # Persist everything the other tests need.
+    # session["token"] is the CryptoJS Bearer token (confirmed correct by MITM capture).
+    # client.refresh_token is a Firebase refresh token for re-auth without re-login.
     save_session(
         {
             "user_id": session["user_id"],
             "token": session["token"],
+            "refresh_token": client.refresh_token,
             "last_uln": session["last_uln"],
             "uln": location["uln"].strip(),
             "srcode": srcode,
@@ -48,7 +51,9 @@ async def test_login_success():
             "account_balance": session.get("account_balance"),
         }
     )
+    refresh_status = "refresh_token captured" if client.refresh_token else "no refresh_token"
     print(f"\nLogged in as user_id={session['user_id']}, uln={location['uln'].strip()}")
+    print(f"Token: CryptoJS Bearer ({refresh_status})")
 
 
 @pytest.mark.asyncio

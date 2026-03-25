@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
 from .api import ApiError, AuthError, WashConnectClient
-from .const import CONF_SRCODE, CONF_TOKEN, CONF_ULN, CONF_USER_ID, DOMAIN
+from .const import CONF_REFRESH_TOKEN, CONF_SRCODE, CONF_TOKEN, CONF_ULN, CONF_USER_ID, DOMAIN
 
 STEP_USER_SCHEMA = vol.Schema(
     {
@@ -53,7 +53,8 @@ class WashConnectConfigFlow(ConfigFlow, domain=DOMAIN):
                         CONF_PASSWORD: user_input[CONF_PASSWORD],
                         CONF_SRCODE: user_input[CONF_SRCODE],
                         CONF_USER_ID: session["user_id"],
-                        CONF_TOKEN: session["token"],
+                        CONF_TOKEN: client.token,
+                        CONF_REFRESH_TOKEN: client.refresh_token,
                         CONF_ULN: location["uln"].strip(),
                     },
                 )

@@ -53,6 +53,8 @@ async def test_config_flow_happy_path(hass):
     with patch(_PATCH) as mock_cls:
         mock_cls.return_value.login = AsyncMock(return_value=VALID_LOGIN)
         mock_cls.return_value.get_locations = AsyncMock(return_value=VALID_LOCATION)
+        mock_cls.return_value.token = "test-token-abc"
+        mock_cls.return_value.refresh_token = None
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], user_input=USER_INPUT
         )
@@ -118,6 +120,8 @@ async def test_config_flow_already_configured(hass):
     with patch(_PATCH) as mock_cls:
         mock_cls.return_value.login = AsyncMock(return_value=VALID_LOGIN)
         mock_cls.return_value.get_locations = AsyncMock(return_value=VALID_LOCATION)
+        mock_cls.return_value.token = "test-token-abc"
+        mock_cls.return_value.refresh_token = None
         await hass.config_entries.flow.async_configure(
             result["flow_id"], user_input=USER_INPUT
         )
@@ -127,6 +131,8 @@ async def test_config_flow_already_configured(hass):
     with patch(_PATCH) as mock_cls:
         mock_cls.return_value.login = AsyncMock(return_value=VALID_LOGIN)
         mock_cls.return_value.get_locations = AsyncMock(return_value=VALID_LOCATION)
+        mock_cls.return_value.token = "test-token-abc"
+        mock_cls.return_value.refresh_token = None
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], user_input=USER_INPUT
         )
