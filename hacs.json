@@ -1,7 +1,5 @@
 {
   "name": "WASH Connect",
-  "domain": "wash_connect",
   "documentation": "https://github.com/yostinso/wash-connect",
-  "homeassistant": "2024.1.0",
-  "iot_class": "cloud_polling"
+  "homeassistant": "2026.1.0"
 }

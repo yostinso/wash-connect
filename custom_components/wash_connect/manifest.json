@@ -1,12 +1,12 @@
 {
   "domain": "wash_connect",
   "name": "WASH Connect",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "documentation": "https://github.com/yostinso/wash-connect",
   "issue_tracker": "https://github.com/yostinso/wash-connect/issues",
   "dependencies": [],
   "codeowners": ["@yostinso"],
   "requirements": [],
-  "iot_class": "local_polling",
+  "iot_class": "cloud_polling",
   "config_flow": true
 }
