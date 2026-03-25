@@ -11,7 +11,7 @@ from homeassistant.helpers import entity_registry as er
 from custom_components.wash_connect.const import DOMAIN
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from .conftest import ENTRY_DATA, SAMPLE_FLOORS
+from fixtures import ENTRY_DATA, SAMPLE_FLOORS
 
 _COORDINATOR_CLIENT = "custom_components.wash_connect.coordinator.WashConnectClient"
 
@@ -59,7 +59,7 @@ async def test_bt_name_sensor_is_default_hidden(hass):
     bt_sensors = [e for e in entries if e.unique_id.endswith("_bt_name")]
     assert bt_sensors, "Expected at least one bt_name sensor"
     for sensor in bt_sensors:
-        assert not sensor.entity_registry_enabled_default
+        assert sensor.disabled_by is not None
 
 
 async def test_balance_sensor_on_separate_device(hass):

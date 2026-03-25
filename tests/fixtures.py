@@ -1,11 +1,4 @@
-"""
-Fixtures for HA component tests.
-
-pytest_homeassistant_custom_component is loaded here (not in the root conftest)
-so its socket-blocking autouse fixture only applies to tests in this directory.
-"""
-pytest_plugins = "pytest_homeassistant_custom_component"
-
+"""Shared test data for HA unit tests."""
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 
 from custom_components.wash_connect.const import (

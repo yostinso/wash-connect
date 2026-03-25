@@ -10,7 +10,7 @@ from custom_components.wash_connect.const import DOMAIN
 from custom_components.wash_connect.helpers import flatten_machines
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from .conftest import ENTRY_DATA, SAMPLE_FLOORS
+from fixtures import ENTRY_DATA, SAMPLE_FLOORS
 
 
 def _make_entry(hass):
@@ -85,8 +85,8 @@ async def test_coordinator_reauth_failure_raises_update_failed(hass):
     client.get_account_balance = AsyncMock(side_effect=AuthError("expired"))
     client.login = AsyncMock(side_effect=AuthError("bad credentials"))
 
-    with pytest.raises(UpdateFailed):
-        await coordinator.async_refresh()
+    await coordinator.async_refresh()
+    assert isinstance(coordinator.last_exception, UpdateFailed)
 
 
 async def test_coordinator_api_error_raises_update_failed(hass):
@@ -96,5 +96,5 @@ async def test_coordinator_api_error_raises_update_failed(hass):
 
     client.get_machine_status = AsyncMock(side_effect=WashConnectError("bad response"))
 
-    with pytest.raises(UpdateFailed):
-        await coordinator.async_refresh()
+    await coordinator.async_refresh()
+    assert isinstance(coordinator.last_exception, UpdateFailed)

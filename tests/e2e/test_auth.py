@@ -8,7 +8,7 @@ import pytest
 import pytest_asyncio
 
 pytestmark = pytest.mark.enable_socket
-from conftest import save_session
+from .conftest import save_session
 
 from wash_connect.api import WashConnectClient, AuthError
 
