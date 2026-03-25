@@ -1,7 +1,7 @@
 {
   "domain": "wash_connect",
   "name": "WASH Connect",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "documentation": "https://github.com/yostinso/wash-connect",
   "issue_tracker": "https://github.com/yostinso/wash-connect/issues",
   "dependencies": [],
